@@ -17,12 +17,14 @@
   user:
     name: "{{ timecapsule_username }}"
 
-- name: Set smbpasswd
-  shell: "(echo '{{ timecapsule_password }}'; echo '{{ timecapsule_password }}') | smbpasswd -s -a {{ timecapsule_username }}"
+- name: Update smbpasswd
+  shell: |
+    set -o pipefail
+    (echo '{{ timecapsule_password }}'; echo '{{ timecapsule_password }}') | smbpasswd -s -a {{ timecapsule_username }}
 
 - name: Ensure timecapsule folder exists
   file:
-    path: "{{ timecapsule_folder }}"
+    path: "{{ timecapsule_folder }}"
     state: directory
     owner: "{{ timecapsule_username }}"
     group: "{{ timecapsule_username }}"
@@ -34,7 +36,7 @@
     setype: samba_share_t
     state: present
 
-- name: Apply new SELinux file context to filesystem
+- name: Apply SELinux contexts
   shell: "restorecon -irv {{ timecapsule_folder }}"
 
 - name: Ensure firewalld allows microsoft-ds
