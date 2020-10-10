@@ -26,7 +26,7 @@ Available variables are listed below, along with default values (see `defaults/m
 * `timecapsule_share_name` (default: "TimeMachine")
   Name of the network share
 
-## Example Playbook
+## Example Playbook
 
     - hosts: servers
       roles:
