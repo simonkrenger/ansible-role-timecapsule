@@ -1,4 +1,5 @@
 galaxy_info:
+  role_name: timecapsule
   author: simonkrenger
   description: Role to setup samba as a Time Capsule
 
