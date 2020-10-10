@@ -8,7 +8,7 @@ Only tested with Fedora 32.
 
 Note that this role will completely overwrite any existing configuration for `samba`.
 
-## Role Variables
+## Role Variables
 
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
