@@ -1,0 +1,54 @@
+---
+- name: Ensure Samba packages are installed
+  yum:
+    name:
+      - samba
+      - firewalld
+      - python3-policycoreutils
+    state: latest
+
+- name: Samba configuration
+  template:
+    src: templates/smb.conf.j2
+    dest: /etc/samba/smb.conf
+  notify: restart samba
+
+- name: Ensure Linux user exists
+  user:
+    name: "{{ timecapsule_username }}"
+
+- name: Set smbpasswd
+  shell: "(echo '{{ timecapsule_password }}'; echo '{{ timecapsule_password }}') | smbpasswd -s -a {{ timecapsule_username }}"
+
+- name: Ensure timecapsule folder exists
+  file:
+    path: "{{ timecapsule_folder }}"
+    state: directory
+    owner: "{{ timecapsule_username }}"
+    group: "{{ timecapsule_username }}"
+    mode: "0700"
+
+- name: Allow samba to modify files
+  sefcontext:
+    target: "{{ timecapsule_folder }}(/.*)?"
+    setype: samba_share_t
+    state: present
+
+- name: Apply new SELinux file context to filesystem
+  shell: "restorecon -irv {{ timecapsule_folder }}"
+
+- name: Ensure firewalld allows microsoft-ds
+  firewalld:
+    service: samba
+    permanent: yes
+    state: enabled
+  notify: reload firewalld
+
+- name: Ensure services are started and enabled
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - smb
+    - firewalld
